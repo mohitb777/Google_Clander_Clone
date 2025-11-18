@@ -1,5 +1,6 @@
 {
   "name": "google-calendar-clone",
+  "author": "mohitb7777",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
