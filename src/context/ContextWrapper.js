@@ -34,6 +34,7 @@ export default function ContextWrapper(props) {
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [labels, setLabels] = useState([]);
+  const [viewMode, setViewMode] = useState("month");
   const [savedEvents, dispatchCalEvent] = useReducer(
     savedEventsReducer,
     [],
@@ -106,6 +107,8 @@ export default function ContextWrapper(props) {
         labels,
         updateLabel,
         filteredEvents,
+        viewMode,
+        setViewMode,
       }}
     >
       {props.children}

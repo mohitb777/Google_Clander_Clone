@@ -6,9 +6,10 @@ import Sidebar from "./components/Sidebar";
 import Month from "./components/Month";
 import GlobalContext from "./context/GlobalContext";
 import EventModal from "./components/EventModal";
+import WeekView from "./components/WeekView";
 function App() {
   const [currenMonth, setCurrentMonth] = useState(getMonth());
-  const { monthIndex, showEventModal } = useContext(GlobalContext);
+  const { monthIndex, showEventModal, viewMode } = useContext(GlobalContext);
 
   useEffect(() => {
     setCurrentMonth(getMonth(monthIndex));
@@ -20,9 +21,15 @@ function App() {
 
       <div className="h-screen flex flex-col">
         <CalendarHeader />
-        <div className="flex flex-1">
+        <div className="flex flex-1 overflow-hidden bg-gray-50">
           <Sidebar />
-          <Month month={currenMonth} />
+          <div className="flex-1 overflow-y-auto">
+            {viewMode === "week" ? (
+              <WeekView />
+            ) : (
+              <Month month={currenMonth} />
+            )}
+          </div>
         </div>
       </div>
     </React.Fragment>

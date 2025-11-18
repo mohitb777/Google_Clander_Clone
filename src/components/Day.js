@@ -9,7 +9,6 @@ export default function Day({ day, rowIdx }) {
     setShowEventModal,
     filteredEvents,
     setSelectedEvent,
-    daySelected,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -21,18 +20,9 @@ export default function Day({ day, rowIdx }) {
   }, [filteredEvents, day]);
 
   function getCurrentDayClass() {
-    const format = "DD-MM-YY";
-    const today = dayjs().format(format);
-    const currDay = day.format(format);
-    const selectedDay = daySelected && daySelected.format(format);
-
-    if (currDay === today) {
-      return "bg-blue-600 text-white rounded-full w-7";
-    }
-    if (selectedDay === currDay) {
-      return "bg-blue-100 text-blue-600 rounded-full font-bold";
-    }
-    return "";
+    return day.format("DD-MM-YY") === dayjs().format("DD-MM-YY")
+      ? "bg-blue-600 text-white rounded-full w-7"
+      : "";
   }
   return (
     <div className="border border-gray-200 flex flex-col">

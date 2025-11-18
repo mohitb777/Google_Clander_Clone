@@ -1,8 +1,10 @@
 {
-  "name": "google-calendar-clone",
-  "author": "mohitb7777",
-  "version": "0.1.0",
+  "name": "mohit-planner",
+  "author": "Mohit Bari",
+  "version": "1.0.0",
   "private": true,
+  "description": "Personal calendar app inspired by Google Calendar, built with React and Tailwind CSS.",
+  "homepage": ".",
   "dependencies": {
     "@tailwindcss/forms": "^0.5.4",
     "@testing-library/jest-dom": "^6.1.3",

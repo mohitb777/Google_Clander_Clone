@@ -15,7 +15,8 @@ module.exports = {
     safelist: [
       ...labelsClasses.map((lbl) => `bg-${lbl}-500`),
       ...labelsClasses.map((lbl) => `bg-${lbl}-200`),
-      ...labelsClasses.map((lbl) => `text-${lbl}-400`)
+      ...labelsClasses.map((lbl) => `text-${lbl}-400`),
+      ...labelsClasses.map((lbl) => `border-${lbl}-500`),
     ],
   },
   darkMode: false, // or 'media' or 'class'
