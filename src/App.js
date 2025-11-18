@@ -10,11 +10,65 @@ import WeekView from "./components/WeekView";
 import DayView from "./components/DayView";
 function App() {
   const [currenMonth, setCurrentMonth] = useState(getMonth());
-  const { monthIndex, showEventModal, viewMode } = useContext(GlobalContext);
+  const {
+    monthIndex,
+    showEventModal,
+    viewMode,
+    setShowEventModal,
+    setViewMode,
+    setMonthIndex,
+    setDaySelected,
+  } = useContext(GlobalContext);
 
   useEffect(() => {
     setCurrentMonth(getMonth(monthIndex));
   }, [monthIndex]);
+
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+        return;
+      }
+
+      switch (e.key.toLowerCase()) {
+        case "c":
+          if (!showEventModal) {
+            e.preventDefault();
+            setShowEventModal(true);
+          }
+          break;
+        case "escape":
+          if (showEventModal) {
+            e.preventDefault();
+            setShowEventModal(false);
+          }
+          break;
+        case "t":
+          e.preventDefault();
+          const today = new Date();
+          setDaySelected(new Date(today.getFullYear(), today.getMonth(), today.getDate()));
+          setMonthIndex(today.getMonth());
+          break;
+        case "m":
+          e.preventDefault();
+          setViewMode("month");
+          break;
+        case "w":
+          e.preventDefault();
+          setViewMode("week");
+          break;
+        case "d":
+          e.preventDefault();
+          setViewMode("day");
+          break;
+        default:
+          break;
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showEventModal, setShowEventModal, setViewMode, setMonthIndex, setDaySelected]);
 
   return (
     <React.Fragment>

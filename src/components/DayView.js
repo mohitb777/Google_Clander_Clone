@@ -35,6 +35,14 @@ export default function DayView() {
     );
   }, [filteredEvents, currentDay]);
 
+  const allDayEvents = useMemo(() => {
+    return eventsForDay.filter((evt) => evt.isAllDay);
+  }, [eventsForDay]);
+
+  const timedEvents = useMemo(() => {
+    return eventsForDay.filter((evt) => !evt.isAllDay);
+  }, [eventsForDay]);
+
   const [selection, setSelection] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -93,6 +101,9 @@ export default function DayView() {
   }
 
   function getEventStyle(evt) {
+    if (evt.isAllDay) {
+      return { top: 0, height: 32 };
+    }
     const start = dayjs(evt.start ?? evt.day);
     const end = dayjs(evt.end ?? start.add(1, "hour"));
     const offset =
@@ -124,6 +135,29 @@ export default function DayView() {
           {currentDay.format("dddd, MMMM DD, YYYY")}
         </p>
       </div>
+      {allDayEvents.length > 0 && (
+        <div className="border-b bg-gray-50 px-6 py-2">
+          <div className="flex flex-wrap gap-2">
+            {allDayEvents.map((evt) => (
+              <div
+                key={evt.id}
+                className={`px-3 py-1 rounded text-xs text-white cursor-pointer bg-${evt.label}-500`}
+                onClick={() => {
+                  setSelectedEvent(evt);
+                  setDaySelected(dayjs(evt.start));
+                  setTimeRange({
+                    start: dayjs(evt.start),
+                    end: dayjs(evt.end),
+                  });
+                  setShowEventModal(true);
+                }}
+              >
+                {evt.title}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="flex-1 flex overflow-hidden bg-white">
         <div className="w-20 border-r border-gray-100">
           {HOURS.map((hour) => (
@@ -143,7 +177,7 @@ export default function DayView() {
             }}
           >
             {selectionBox}
-            {eventsForDay.map((evt) => (
+            {timedEvents.map((evt) => (
               <div
                 key={evt.id}
                 className={`absolute left-2 right-2 rounded-lg p-2 text-xs md:text-sm text-white shadow cursor-pointer bg-${evt.label}-500`}
@@ -163,6 +197,11 @@ export default function DayView() {
                   {dayjs(evt.start).format("h:mm A")} -{" "}
                   {dayjs(evt.end).format("h:mm A")}
                 </p>
+                {evt.location && (
+                  <p className="text-[10px] text-white/70 mt-1">
+                    📍 {evt.location}
+                  </p>
+                )}
               </div>
             ))}
           </div>

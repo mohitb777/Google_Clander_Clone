@@ -21,6 +21,8 @@ const GlobalContext = React.createContext({
   setViewMode: () => {},
   timeRange: null,
   setTimeRange: () => {},
+  searchQuery: "",
+  setSearchQuery: () => {},
 });
 
 export default GlobalContext;

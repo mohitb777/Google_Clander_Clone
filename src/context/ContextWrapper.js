@@ -6,6 +6,8 @@ import React, {
 } from "react";
 import GlobalContext from "./GlobalContext";
 import dayjs from "dayjs";
+import { expandRecurringEvents } from "../util";
+import { checkReminders, showNotification, requestNotificationPermission } from "../utils/reminders";
 
 function savedEventsReducer(state, { type, payload }) {
   switch (type) {
@@ -50,6 +52,7 @@ export default function ContextWrapper(props) {
   const [labels, setLabels] = useState([]);
   const [viewMode, setViewMode] = useState("month");
   const [timeRange, setTimeRange] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [savedEvents, dispatchCalEvent] = useReducer(
     savedEventsReducer,
     [],
@@ -57,13 +60,28 @@ export default function ContextWrapper(props) {
   );
 
   const filteredEvents = useMemo(() => {
-    return savedEvents.filter((evt) =>
+    let labelFiltered = savedEvents.filter((evt) =>
       labels
         .filter((lbl) => lbl.checked)
         .map((lbl) => lbl.label)
         .includes(evt.label)
     );
-  }, [savedEvents, labels]);
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      labelFiltered = labelFiltered.filter(
+        (evt) =>
+          evt.title?.toLowerCase().includes(query) ||
+          evt.description?.toLowerCase().includes(query) ||
+          evt.location?.toLowerCase().includes(query)
+      );
+    }
+    
+    const viewStart = dayjs().month(monthIndex).startOf("month").subtract(1, "month");
+    const viewEnd = dayjs().month(monthIndex).endOf("month").add(1, "month");
+    
+    return expandRecurringEvents(labelFiltered, viewStart, viewEnd);
+  }, [savedEvents, labels, monthIndex, searchQuery]);
 
   useEffect(() => {
     localStorage.setItem(
@@ -101,6 +119,18 @@ export default function ContextWrapper(props) {
     }
   }, [showEventModal]);
 
+  useEffect(() => {
+    requestNotificationPermission();
+    const interval = setInterval(() => {
+      const triggered = checkReminders(savedEvents);
+      triggered.forEach(({ event }) => {
+        showNotification(event);
+      });
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [savedEvents]);
+
   function updateLabel(label) {
     setLabels(
       labels.map((lbl) => (lbl.label === label.label ? label : lbl))
@@ -130,6 +160,8 @@ export default function ContextWrapper(props) {
         setViewMode,
         timeRange,
         setTimeRange,
+        searchQuery,
+        setSearchQuery,
       }}
     >
       {props.children}

@@ -11,6 +11,8 @@ export default function CalendarHeader() {
     setDaySelected,
     viewMode,
     setViewMode,
+    searchQuery,
+    setSearchQuery,
   } = useContext(GlobalContext);
 
   const activeDay = daySelected || dayjs();
@@ -91,6 +93,26 @@ export default function CalendarHeader() {
       <h2 className="ml-4 text-xl text-gray-600 font-bold">
         {title}
       </h2>
+      <div className="ml-8 flex items-center border rounded-full px-4 py-1 bg-white">
+        <span className="material-icons-outlined text-gray-400 text-sm mr-2">
+          search
+        </span>
+        <input
+          type="text"
+          placeholder="Search events..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="outline-none text-sm text-gray-700 w-64"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery("")}
+            className="ml-2 text-gray-400 hover:text-gray-600"
+          >
+            <span className="material-icons-outlined text-sm">close</span>
+          </button>
+        )}
+      </div>
       <div className="ml-auto flex items-center border rounded-full">
         {["month", "week", "day"].map((mode) => (
           <button
