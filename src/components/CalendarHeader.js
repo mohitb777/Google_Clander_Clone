@@ -19,16 +19,21 @@ export default function CalendarHeader() {
   const title =
     viewMode === "week"
       ? `${weekStart.format("MMM D")} - ${weekEnd.format("MMM D, YYYY")}`
-      : dayjs(new Date(dayjs().year(), monthIndex)).format(
-          "MMMM YYYY"
-        );
+      : viewMode === "day"
+        ? activeDay.format("dddd, MMMM D, YYYY")
+        : dayjs(new Date(dayjs().year(), monthIndex)).format(
+            "MMMM YYYY"
+          );
 
   function handlePrev() {
     if (viewMode === "month") {
       setMonthIndex(monthIndex - 1);
       return;
     }
-    const newDay = activeDay.subtract(7, "day");
+    const newDay =
+      viewMode === "day"
+        ? activeDay.subtract(1, "day")
+        : activeDay.subtract(7, "day");
     setDaySelected(newDay);
     setMonthIndex(newDay.month());
   }
@@ -38,7 +43,10 @@ export default function CalendarHeader() {
       setMonthIndex(monthIndex + 1);
       return;
     }
-    const newDay = activeDay.add(7, "day");
+    const newDay =
+      viewMode === "day"
+        ? activeDay.add(1, "day")
+        : activeDay.add(7, "day");
     setDaySelected(newDay);
     setMonthIndex(newDay.month());
   }
@@ -53,6 +61,8 @@ export default function CalendarHeader() {
     setViewMode(mode);
     if (mode === "month") {
       setMonthIndex(activeDay.month());
+    } else if (mode === "day") {
+      setDaySelected(activeDay);
     }
   }
 
@@ -82,7 +92,7 @@ export default function CalendarHeader() {
         {title}
       </h2>
       <div className="ml-auto flex items-center border rounded-full">
-        {["month", "week"].map((mode) => (
+        {["month", "week", "day"].map((mode) => (
           <button
             key={mode}
             onClick={() => handleViewChange(mode)}

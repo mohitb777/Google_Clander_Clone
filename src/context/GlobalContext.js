@@ -19,6 +19,8 @@ const GlobalContext = React.createContext({
   filteredEvents: [],
   viewMode: "month",
   setViewMode: () => {},
+  timeRange: null,
+  setTimeRange: () => {},
 });
 
 export default GlobalContext;

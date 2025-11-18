@@ -1,4 +1,5 @@
-import React, { useContext, useState } from "react";
+import dayjs from "dayjs";
+import React, { useContext, useState, useEffect } from "react";
 import GlobalContext from "../context/GlobalContext";
 
 const labelsClasses = [
@@ -16,6 +17,8 @@ export default function EventModal() {
     daySelected,
     dispatchCalEvent,
     selectedEvent,
+    timeRange,
+    setTimeRange,
   } = useContext(GlobalContext);
 
   const [title, setTitle] = useState(
@@ -29,14 +32,50 @@ export default function EventModal() {
       ? labelsClasses.find((lbl) => lbl === selectedEvent.label)
       : labelsClasses[0]
   );
+  const [startTime, setStartTime] = useState("09:00");
+  const [endTime, setEndTime] = useState("10:00");
+
+  useEffect(() => {
+    const startSource = selectedEvent
+      ? dayjs(selectedEvent.start)
+      : timeRange
+        ? timeRange.start
+        : daySelected;
+    const endSource = selectedEvent
+      ? dayjs(selectedEvent.end)
+      : timeRange
+        ? timeRange.end
+        : daySelected.add(1, "hour");
+    setStartTime(dayjs(startSource).format("HH:mm"));
+    setEndTime(dayjs(endSource).format("HH:mm"));
+  }, [selectedEvent, timeRange, daySelected]);
 
   function handleSubmit(e) {
     e.preventDefault();
+    const baseDay = daySelected
+      ? daySelected.startOf("day")
+      : dayjs().startOf("day");
+    const [startHour, startMinutes] = startTime
+      .split(":")
+      .map((num) => parseInt(num, 10));
+    const [endHour, endMinutes] = endTime
+      .split(":")
+      .map((num) => parseInt(num, 10));
+    const startDate = baseDay
+      .hour(startHour || 0)
+      .minute(startMinutes || 0);
+    let endDate = baseDay.hour(endHour || 0).minute(endMinutes || 0);
+    if (!endTime || !endTime.includes(":") || !endDate.isAfter(startDate)) {
+      endDate = startDate.add(1, "hour");
+    }
+
     const calendarEvent = {
       title,
       description,
       label: selectedLabel,
-      day: daySelected.valueOf(),
+      day: startDate.startOf("day").valueOf(),
+      start: startDate.valueOf(),
+      end: endDate.valueOf(),
       id: selectedEvent ? selectedEvent.id : Date.now(),
     };
     if (selectedEvent) {
@@ -46,6 +85,7 @@ export default function EventModal() {
     }
 
     setShowEventModal(false);
+    setTimeRange(null);
   }
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center">
@@ -91,7 +131,31 @@ export default function EventModal() {
             <span className="material-icons-outlined text-gray-400">
               schedule
             </span>
-            <p>{daySelected.format("dddd, MMMM DD")}</p>
+            <div className="flex flex-col text-sm">
+              <p className="text-gray-600">
+                {daySelected.format("dddd, MMMM DD")}
+              </p>
+              <div className="flex items-center mt-2 space-x-2">
+                <label className="text-gray-400 text-xs uppercase tracking-wide">
+                  Start
+                  <input
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    className="ml-2 border rounded px-2 py-1 text-gray-700"
+                  />
+                </label>
+                <label className="text-gray-400 text-xs uppercase tracking-wide">
+                  End
+                  <input
+                    type="time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                    className="ml-2 border rounded px-2 py-1 text-gray-700"
+                  />
+                </label>
+              </div>
+            </div>
             <span className="material-icons-outlined text-gray-400">
               segment
             </span>

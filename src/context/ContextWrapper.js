@@ -21,10 +21,24 @@ function savedEventsReducer(state, { type, payload }) {
       throw new Error();
   }
 }
+function normalizeEvent(evt) {
+  const base = evt.start ?? evt.day ?? dayjs().valueOf();
+  const startTime = dayjs(base);
+  const endTime = evt.end
+    ? dayjs(evt.end)
+    : startTime.add(1, "hour");
+  return {
+    ...evt,
+    start: startTime.valueOf(),
+    end: endTime.valueOf(),
+    day: startTime.startOf("day").valueOf(),
+  };
+}
+
 function initEvents() {
   const storageEvents = localStorage.getItem("savedEvents");
   const parsedEvents = storageEvents ? JSON.parse(storageEvents) : [];
-  return parsedEvents;
+  return parsedEvents.map(normalizeEvent);
 }
 
 export default function ContextWrapper(props) {
@@ -35,6 +49,7 @@ export default function ContextWrapper(props) {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [labels, setLabels] = useState([]);
   const [viewMode, setViewMode] = useState("month");
+  const [timeRange, setTimeRange] = useState(null);
   const [savedEvents, dispatchCalEvent] = useReducer(
     savedEventsReducer,
     [],
@@ -51,7 +66,10 @@ export default function ContextWrapper(props) {
   }, [savedEvents, labels]);
 
   useEffect(() => {
-    localStorage.setItem("savedEvents", JSON.stringify(savedEvents));
+    localStorage.setItem(
+      "savedEvents",
+      JSON.stringify(savedEvents.map(normalizeEvent))
+    );
   }, [savedEvents]);
 
   useEffect(() => {
@@ -79,6 +97,7 @@ export default function ContextWrapper(props) {
   useEffect(() => {
     if (!showEventModal) {
       setSelectedEvent(null);
+      setTimeRange(null);
     }
   }, [showEventModal]);
 
@@ -109,6 +128,8 @@ export default function ContextWrapper(props) {
         filteredEvents,
         viewMode,
         setViewMode,
+        timeRange,
+        setTimeRange,
       }}
     >
       {props.children}

@@ -7,6 +7,7 @@ import Month from "./components/Month";
 import GlobalContext from "./context/GlobalContext";
 import EventModal from "./components/EventModal";
 import WeekView from "./components/WeekView";
+import DayView from "./components/DayView";
 function App() {
   const [currenMonth, setCurrentMonth] = useState(getMonth());
   const { monthIndex, showEventModal, viewMode } = useContext(GlobalContext);
@@ -26,6 +27,8 @@ function App() {
           <div className="flex-1 overflow-y-auto">
             {viewMode === "week" ? (
               <WeekView />
+            ) : viewMode === "day" ? (
+              <DayView />
             ) : (
               <Month month={currenMonth} />
             )}
